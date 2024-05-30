@@ -1,2 +1,2 @@
 # FinanzPlaner
-Dies wird eine Anwendung für die Planung des Haushalts
+Dies wird eine Anwendung für die Planung von Finanzen des Haushaltes.
