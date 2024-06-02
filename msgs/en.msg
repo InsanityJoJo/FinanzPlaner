@@ -1,5 +1,22 @@
 namespace eval gui {
 	msgcat::mcflmset {
-		apptitle "Finance Planner"
+		apptitle 		"Finance Planner"
+		addInventory	"Add Entry"
+	}
+}
+
+namespace eval inventoryDialog {
+	msgcat::mcflmset {
+		dialogTitle		"New Entry"
+		
+		date 			"Date: "
+		name 			"Name: "
+		amount 			"Amount: "
+		classification 	"Class: "
+		category 		"Category: "
+		place			"Place: "
+		
+		accept			"Accept"
+		discard			"Discard"
 	}
 }
