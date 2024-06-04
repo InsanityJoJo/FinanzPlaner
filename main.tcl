@@ -1,4 +1,5 @@
 package require Tk
+package require tdbc::sqlite3
 
 proc relativePath {relPath} {
 	return [file join [file dirname [info script]] $relPath]
@@ -19,11 +20,19 @@ namespace eval gui {
 	#create main elements
 	ttk::treeview .c.view
 	ttk::button .c.add -text [msgcat::mc addInventory] -command gui::addInventory
+	ttk::button .c.print -text "print" -command gui::printAllEntrys
 	grid .c.view -column 0 -row 0 -sticky nsew
 	grid .c.add  -column 0 -row 1 -sticky w
+	grid .c.print  -column 0 -row 1 -sticky e
 
 	proc addInventory {} {
 		inventoryDialog::displayModal
+	}
+	proc printAllEntrys {} {
+		set filename [relativePath data.sqlite3]
+		db::open $filename
+		db::printTable transactions
+		db::close
 	}
 }
 
@@ -78,11 +87,18 @@ namespace eval inventoryDialog {
 
 	proc accept {} {
 		variable entryNames
-		set resultList {}
+		set values {}
 		foreach name $entryNames {
-			lappend resultList [.dAddInventory.top.${name}Entry get]
+			dict set values $name [.dAddInventory.top.${name}Entry get]
 		}
-		puts $resultList
+		puts $values
+
+		set columnNames [join $entryNames ", "]
+		set filename [relativePath data.sqlite3]
+		db::open $filename
+		db::execSql "create table if not exists transactions ($columnNames)"
+		db::execValuesSql "insert into transactions ($columnNames) values (:[join $entryNames ", :"])" $values
+		db::close
 		inventoryDialog::close
 	}
 	
@@ -92,3 +108,31 @@ namespace eval inventoryDialog {
 	}
 }
 
+namespace eval db {
+	#opens database and creates db::conn object
+	proc open {filename} {
+		tdbc::sqlite3::connection create conn $filename
+	}
+	#executes sql statement
+	proc execSql {sql} {
+		set stmt [conn prepare $sql]
+		$stmt execute
+		$stmt close
+	}
+	#executes sql statement with values as a dictionary
+	proc execValuesSql {sql values} {
+		set stmt [conn prepare $sql]
+		$stmt execute $values
+		$stmt close
+	}
+	proc printTable {tableName} {
+		conn foreach row "select * from $tableName" {} {
+			puts $row
+		}
+		
+	}
+	#closes database connection
+	proc close {} {
+		conn close
+	}
+}
