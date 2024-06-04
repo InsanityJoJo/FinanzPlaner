@@ -26,7 +26,7 @@ namespace eval gui {
 	grid .c.print  -column 0 -row 1 -sticky e
 
 	proc addInventory {} {
-		inventoryDialog::displayModal
+		transactionDialog::displayModal
 	}
 	proc printAllEntrys {} {
 		set filename [relativePath data.sqlite3]
@@ -36,7 +36,7 @@ namespace eval gui {
 	}
 }
 
-namespace eval inventoryDialog {
+namespace eval transactionDialog {
 	#Holds the names of all input values.
 	#Used to populate the dialog with input fields(so we need to type less).
 	variable entryNames {date name amount classification category place}
@@ -45,51 +45,51 @@ namespace eval inventoryDialog {
 		variable entryNames
 		
 		#create and configure dialog window
-		tk::toplevel .dAddInventory
-		wm title .dAddInventory [msgcat::mc dialogTitle]
-		grid columnconfigure .dAddInventory 0 -weight 1
-		grid rowconfigure    .dAddInventory 0 -weight 1
+		tk::toplevel .dAddTransaction
+		wm title .dAddTransaction [msgcat::mc dialogTitle]
+		grid columnconfigure .dAddTransaction 0 -weight 1
+		grid rowconfigure    .dAddTransaction 0 -weight 1
 
 		#create topframe for all other elements
-		ttk::frame .dAddInventory.top
-		grid .dAddInventory.top -row 0 -column 0 -sticky nsew
-		grid columnconfigure .dAddInventory.top 0 -weight 1
-		grid columnconfigure .dAddInventory.top 1 -weight 1
+		ttk::frame .dAddTransaction.top
+		grid .dAddTransaction.top -row 0 -column 0 -sticky nsew
+		grid columnconfigure .dAddTransaction.top 0 -weight 1
+		grid columnconfigure .dAddTransaction.top 1 -weight 1
 		set row 0
 		while {$row <= [llength entryNames]} {
-			grid rowconfigure .dAddInventory.top $row -weight 1
+			grid rowconfigure .dAddTransaction.top $row -weight 1
 			incr row
 		}
 		
 		# create input(entry) widgets
 		set row 0
 		foreach name $entryNames {
-			grid [ttk::label .dAddInventory.top.${name}Label -text [msgcat::mc $name]] -column 0 -row $row
-			grid [ttk::entry .dAddInventory.top.${name}Entry] -column 1 -row $row
+			grid [ttk::label .dAddTransaction.top.${name}Label -text [msgcat::mc $name]] -column 0 -row $row
+			grid [ttk::entry .dAddTransaction.top.${name}Entry] -column 1 -row $row
 			incr row
 		}
 
 		# create accept and discard buttons
-		ttk::button .dAddInventory.top.accept  -text [msgcat::mc accept]  -command inventoryDialog::accept
-		ttk::button .dAddInventory.top.discard -text [msgcat::mc discard] -command inventoryDialog::close
-		grid .dAddInventory.top.accept  -column 0 -row $row -sticky w
-		grid .dAddInventory.top.discard -column 1 -row $row -sticky e
+		ttk::button .dAddTransaction.top.accept  -text [msgcat::mc accept]  -command transactionDialog::accept
+		ttk::button .dAddTransaction.top.discard -text [msgcat::mc discard] -command transactionDialog::close
+		grid .dAddTransaction.top.accept  -column 0 -row $row -sticky w
+		grid .dAddTransaction.top.discard -column 1 -row $row -sticky e
 		
 		# make dialog modal
-		wm protocol .dAddInventory WM_DELETE_WINDOW {inventoryDialog::close}
-		wm transient .dAddInventory .
-		tkwait visibility .dAddInventory
-		raise .dAddInventory
-		focus .dAddInventory
-		grab  .dAddInventory
-		tkwait window .dAddInventory
+		wm protocol .dAddTransaction WM_DELETE_WINDOW {transactionDialog::close}
+		wm transient .dAddTransaction .
+		tkwait visibility .dAddTransaction
+		raise .dAddTransaction
+		focus .dAddTransaction
+		grab  .dAddTransaction
+		tkwait window .dAddTransaction 
 	}
 
 	proc accept {} {
 		variable entryNames
 		set values {}
 		foreach name $entryNames {
-			dict set values $name [.dAddInventory.top.${name}Entry get]
+			dict set values $name [.dAddTransaction.top.${name}Entry get]
 		}
 		puts $values
 
@@ -99,12 +99,12 @@ namespace eval inventoryDialog {
 		db::execSql "create table if not exists transactions ($columnNames)"
 		db::execValuesSql "insert into transactions ($columnNames) values (:[join $entryNames ", :"])" $values
 		db::close
-		inventoryDialog::close
+		transactionDialog::close
 	}
 	
 	proc close {} {
-		grab release .dAddInventory
-		destroy .dAddInventory
+		grab release .dAddTransaction
+		destroy .dAddTransaction
 	}
 }
 

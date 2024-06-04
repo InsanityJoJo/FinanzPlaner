@@ -5,7 +5,7 @@ namespace eval gui {
 	}
 }
 
-namespace eval inventoryDialog {
+namespace eval transactionDialog {
 	msgcat::mcflmset {
 		dialogTitle		"Neuer Eintrag"
 		
