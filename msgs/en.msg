@@ -2,6 +2,10 @@ namespace eval gui {
 	msgcat::mcflmset {
 		apptitle 		"Finance Planner"
 		addInventory	"Add Entry"
+		
+		date 			"Date"
+		name 			"Name"
+		amount 			"Amount"
 	}
 }
 

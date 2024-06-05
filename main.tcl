@@ -7,6 +7,41 @@ proc relativePath {relPath} {
 msgcat::mcload [relativePath msgs]
 
 #msgcat::mclocale en
+
+namespace eval db {
+	#opens database and creates db::conn object
+	proc open {filename} {
+		tdbc::sqlite3::connection create conn $filename
+	}
+	#executes sql statement
+	proc execSql {sql} {
+		set stmt [conn prepare $sql]
+		$stmt execute
+		$stmt close
+	}
+	#executes sql statement with values as a dictionary
+	proc execValuesSql {sql values} {
+		set stmt [conn prepare $sql]
+		$stmt execute $values
+		$stmt close
+	}
+	#selects all entries from a table and returns the result
+	proc selectFrom {tableName} {
+		set stmt [conn prepare "select * from $tableName"]
+		return [$stmt execute]
+	}
+	#prints all entries from a table
+	proc printTable {tableName} {
+		conn foreach row "select * from $tableName" {} {
+			puts $row
+		}
+	}
+	#closes database connection
+	proc close {} {
+		conn close
+	}
+}
+
 namespace eval gui {
   	#configure mainwindow
 	wm title . [msgcat::mc apptitle]
@@ -25,6 +60,7 @@ namespace eval gui {
 	grid .c.add  -column 0 -row 1 -sticky w
 	grid .c.print  -column 0 -row 1 -sticky e
 
+	#displays the input dialog
 	proc addInventory {} {
 		transactionDialog::displayModal
 	}
@@ -34,6 +70,26 @@ namespace eval gui {
 		db::printTable transactions
 		db::close
 	}
+
+	#loads all transactions and displays it in the treeview
+	proc loadTransactions {} {
+		set filename [relativePath data.sqlite3]
+		db::open $filename
+		set res [db::selectFrom transactions]
+		#delete all old entrys
+		.c.view delete [.c.view children {}]
+		while {[$res nextdict row]} {
+			.c.view insert {} end -text [dict get $row name] -values [list [dict get $row amount] [dict get $row date]] 
+		}
+		db::close
+	}
+	#set heading captions, #0 means first column
+	.c.view configure -columns "amount date"
+	.c.view heading #0 	   -text [msgcat::mc name]
+	.c.view heading amount -text [msgcat::mc amount]
+	.c.view heading date   -text [msgcat::mc date]
+	#display all transactions at the beginning of the application
+	loadTransactions
 }
 
 namespace eval transactionDialog {
@@ -85,6 +141,7 @@ namespace eval transactionDialog {
 		tkwait window .dAddTransaction 
 	}
 
+	#callback for the accept button
 	proc accept {} {
 		variable entryNames
 		set values {}
@@ -99,40 +156,13 @@ namespace eval transactionDialog {
 		db::execSql "create table if not exists transactions ($columnNames)"
 		db::execValuesSql "insert into transactions ($columnNames) values (:[join $entryNames ", :"])" $values
 		db::close
+		gui::loadTransactions
 		transactionDialog::close
 	}
-	
+
+	#closes the input dialog
 	proc close {} {
 		grab release .dAddTransaction
 		destroy .dAddTransaction
-	}
-}
-
-namespace eval db {
-	#opens database and creates db::conn object
-	proc open {filename} {
-		tdbc::sqlite3::connection create conn $filename
-	}
-	#executes sql statement
-	proc execSql {sql} {
-		set stmt [conn prepare $sql]
-		$stmt execute
-		$stmt close
-	}
-	#executes sql statement with values as a dictionary
-	proc execValuesSql {sql values} {
-		set stmt [conn prepare $sql]
-		$stmt execute $values
-		$stmt close
-	}
-	proc printTable {tableName} {
-		conn foreach row "select * from $tableName" {} {
-			puts $row
-		}
-		
-	}
-	#closes database connection
-	proc close {} {
-		conn close
 	}
 }
