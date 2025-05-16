@@ -1,6 +1,7 @@
 package require Tk
 package require tdbc::sqlite3
-package require gui::loadTransactions
+package require msgcat
+
 proc relativePath {relPath} {
 	return [file join [file dirname [info script]] $relPath]
 }
@@ -10,7 +11,7 @@ msgcat::mcload [relativePath msgs]
 #load all functions related to the database
 source [relativePath database.tcl]
 
-source [gui.tcl]
+source [relativePath gui.tcl]
 
 
 namespace eval transactionDialog {

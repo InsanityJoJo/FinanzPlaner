@@ -42,7 +42,7 @@ namespace eval gui {
 		db::close
 	}
 	#set heading captions, #0 means first column
-	.c.view configure -columns "amount date"
+	.c.view configure -columns "amount date classification category place"
 	.c.view heading #0 	   -text [msgcat::mc name]
 	.c.view heading amount -text [msgcat::mc amount]
 	.c.view heading date   -text [msgcat::mc date]

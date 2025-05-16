@@ -6,6 +6,9 @@ namespace eval gui {
 		date 			"Date"
 		name 			"Name"
 		amount 			"Amount"
+		classification 	"Class"
+		category 		"Category"
+		place			"Place"
 	}
 }
 
