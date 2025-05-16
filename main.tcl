@@ -1,6 +1,6 @@
 package require Tk
 package require tdbc::sqlite3
-
+package require gui::loadTransactions
 proc relativePath {relPath} {
 	return [file join [file dirname [info script]] $relPath]
 }
@@ -56,6 +56,9 @@ namespace eval gui {
 	.c.view heading #0 	   -text [msgcat::mc name]
 	.c.view heading amount -text [msgcat::mc amount]
 	.c.view heading date   -text [msgcat::mc date]
+	.c.view heading classification -text [msgcat::mc classification]
+	.c.view heading category -text [msgcat::mc category]
+	.c.view heading place 	-text [msgcat::mc place]
 	#display all transactions at the beginning of the application
 	loadTransactions
 }

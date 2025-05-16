@@ -16,24 +16,27 @@ db::open "data.sqlite3"
 db::execSql {
     CREATE TABLE transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timecreated TEXT DEFAULT (datetime('now')), 
         date TEXT NOT NULL,
-        category TEXT,
         name TEXT,
-        amount REAL NOT NULL
+        amount REAL NOT NULL,
+        classification TEXT,
+        category TEXT,
+        place TEXT
     );
 }
 
 # generate example data 
 set exampledata {
-    {date "2025-05-01" category "Lebensmittel" name "Einkauf Rewe" amount 42.50}
-    {date "2025-05-03" category "Transport" name "Bahnticket" amount 15.00}
-    {date "2025-05-05" category "Gehalt" name "Minijob" amount -450.00}
+    {date "2025-05-01" name "Einkauf Rewe" amount 42.50 classification "Ausgabe" category "Lebensmittel" place "Rewe" }
+    {date "2025-05-03" name "Bahnticket" amount 15.00 classification "Ausgabe" category "Transport" place "online" }
+    {date "2025-05-05" name "Minijob" amount -450.00 classification "Einnahme" category "Gehalt" place "Arbeit" }
 }
 
 foreach entry $exampledata {
     db::execValuesSql {
-        INSERT INTO transactions (date, category, name, amount)
-        VALUES (:date, :category, :name, :amount)
+        INSERT INTO transactions (date, name, amount, classification, category, place)
+        VALUES (:date, :name, :amount, :classification, :category, :place)
     } $entry
 }
 
