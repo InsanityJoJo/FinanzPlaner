@@ -10,7 +10,7 @@ msgcat::mcload [relativePath msgs]
 
 #load all functions related to the database
 source [relativePath database.tcl]
-
+#load all functions related to the gui
 source [relativePath gui.tcl]
 
 
